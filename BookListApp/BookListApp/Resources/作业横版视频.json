@@ -1,0 +1,88 @@
+{
+	"ad_item": [{
+		"app_install": "2082",
+		"app_like": "4.1",
+		"appleid": "1491456319",
+		"auto_open": 0,
+		"avatar_url": "http://sf6-be-pack.pglstatp-toutiao.com/obj/ad-app-package/3ce2853ef7baee0c85d5d74948cc3107",
+		"button_text": "立即下载",
+		"click_track_url_list": [],
+		"description": "时尚都市之环游世界",
+		"dislike": [{
+			"name": "为什么看到此广告",
+			"open_url": "sslocal://webview?url=https%3a%2f%2fi.snssdk.com%2fapi%2fad%2ffeedback%2fprivacy%2fpage%3ftype%3dad_dislike\u0026hide_more=1\u0026title=为什么看到此广告"
+		}],
+		"display_type": 5,
+		"download_url": "https://itunes.apple.com/cn/app/id1491456319",
+		"filter_words": [{
+			"id": "4:2",
+			"name": "看过了"
+		}, {
+			"id": "1:65",
+			"name": "屏蔽:游戏类广告"
+		}, {
+			"id": "1:224",
+			"name": "屏蔽:经营策略类广告"
+		}],
+		"forced_viewing_time": 0,
+		"id": 1688840193509400,
+		"image_list": [{
+			"height": 720,
+			"uri": "origin/web.business.image/202101135d0d5251278a81f6417d9cd5",
+			"url": "https://sf3-ttcdn-tos.pstatp.com/obj/web.business.image/202101135d0d5251278a81f6417d9cd5?from=ad",
+			"url_list": [{
+				"url": "https://sf3-ttcdn-tos.pstatp.com/obj/web.business.image/202101135d0d5251278a81f6417d9cd5?from=ad"
+			}, {
+				"url": "https://sf6-ttcdn-tos.pstatp.com/obj/web.business.image/202101135d0d5251278a81f6417d9cd5?from=ad"
+			}, {
+				"url": "https://sf1-ttcdn-tos.pstatp.com/obj/web.business.image/202101135d0d5251278a81f6417d9cd5?from=ad"
+			}],
+			"width": 1280
+		}],
+		"intercept_flag": 2,
+		"is_preview": true,
+		"label": {
+			"text": "广告"
+		},
+		"log_extra": "{\"ad_price\":\"YQfAa__nm1thB8Br_-ebW2mc1KiUKCgmFFAKYw\",\"ad_show_type\":0,\"bdid\":\"4f2949af3f4be3e77fa3df480adcce86a58c3a56205687b88aa075561dcbf6fe\",\"card_id\":0,\"clickid\":\"EJiQxP7b__8CGKnv3s2VAyDC8JvmggIwDDi_ywFCIjIwMjEwODAyMTc1MjQzMDEwMTM1MTYzMDczMkIwODJBRTZIwbgCkAEA\",\"convert_component_suspend\":0,\"convert_id\":1688833796403276,\"creator_id\":6978689955425946632,\"creator_type\":0,\"external_action\":14,\"hyrule_atype\":[],\"is_pack_v2\":true,\"orit\":40001,\"pigeon_num\":0,\"req_id\":\"202108021752430101351630732B082AE6\",\"rit\":26047,\"style_id\":6081,\"style_ids\":[6081]}",
+		"new_chapter_ad_style": true,
+		"open_url": "",
+		"package": "big.zongcai.ios",
+		"share_info": {
+			"share_desc": "开局选身份，经营手握一亿资金，你能逆袭成首富吗？",
+			"share_icon": "http://sf6-be-pack.pglstatp-toutiao.com/obj/ad-app-package/3ce2853ef7baee0c85d5d74948cc3107",
+			"share_title": "开局选身份，经营手握一亿资金，你能逆袭成首富吗？",
+			"share_url": "https://adshare.toutiao.com/s/656IfXcN1YFqBtvuDrjS-uPJQPErZN29Oq_k3Vp3XPgTJlWCvTC5VcZZ0yUYJcVeYs_EFbPr8Kr4w="
+		},
+		"show_close": 1,
+		"show_close_seconds": 5,
+		"show_dislike": 0,
+		"skan_parameters": "{\"store_product_parameters\":{\"version\":\"2.2\",\"ad_network_id\":\"3jtpea4uu7.skadnetwork\",\"campaign_id\":1,\"nonce\":\"a4ae902d-12bc-4eda-b886-60b5bd7c1868\",\"itunes_item_id\":1491456319,\"source_app_id\":0,\"timestamp\":1627897963422,\"attribution_signature\":\"MEYCIQCR6S84yicNt7ZhCZnTyY/3/YkqkwVibp1WstmGhGYlXwIhAILKDraK3S1eJuaGjoW4lO1r+8wECXEHPB0FvkaQ28fh\"},\"ad_impression\":{\"version\":\"2.2\",\"ad_network_id\":\"3jtpea4uu7.skadnetwork\",\"ad_campaign_id\":1,\"advertised_app_id\":1491456319,\"ad_impression_id\":\"a4ae902d-12bc-4eda-b886-60b5bd7c1868\",\"source_app_id\":0,\"timestamp\":1627897963422,\"signature\":\"MEUCIQDFuMP6G7DDe+aZItewmBUgLDI7ci8c8Jdd5ln96x2VGAIgaK4utDrsF3Sq39tinuP2lnPMxN33GDEVfpFlA09A190=\"}}",
+		"source": "时尚都市之环游世界",
+		"sub_title": "时尚都市之环游世界",
+		"title": "开局选身份，经营手握一亿资金，你能逆袭成首富吗？",
+		"track_url_list": [],
+		"type": "app",
+		"video_info": {
+			"duration": 52,
+			"effective_inspire_time": 15,
+			"effective_play_time": 0,
+			"effective_play_track_url_list": [],
+			"height": 720,
+			"play_track_url_list": [],
+			"playover_track_url_list": [],
+			"schema": "sslocal://detail?groupid=6917489420400640525\u0026item_id=6917489420400640525\u0026ad_id=1688840193509400\u0026log_extra={\"ad_price\":\"YQfAa__nm1thB8Br_-ebW2mc1KiUKCgmFFAKYw\",\"ad_show_type\":0,\"bdid\":\"4f2949af3f4be3e77fa3df480adcce86a58c3a56205687b88aa075561dcbf6fe\",\"card_id\":0,\"clickid\":\"EJiQxP7b__8CGKnv3s2VAyDC8JvmggIwDDi_ywFCIjIwMjEwODAyMTc1MjQzMDEwMTM1MTYzMDczMkIwODJBRTZIwbgCkAEA\",\"convert_component_suspend\":0,\"convert_id\":1688833796403276,\"creator_id\":6978689955425946632,\"creator_type\":0,\"external_action\":14,\"hyrule_atype\":[],\"is_pack_v2\":true,\"orit\":40001,\"pigeon_num\":0,\"req_id\":\"202108021752430101351630732B082AE6\",\"rit\":26047,\"style_id\":6081,\"style_ids\":[6081]}",
+			"type": "origin",
+			"video_group_id": 6917489420400640525,
+			"video_group_id_str": "6917489420400640525",
+			"video_id": "v02033fd0000bvv5rlp3atl0ee3m1n00",
+			"width": 1280
+		},
+		"web_title": "时尚都市之环游世界",
+		"xs_ad_pos": 7,
+		"xs_chapter_pos": null
+	}],
+	"code": 0,
+	"message": "success",
+	"extra": "{\"need_xs_ad\":true,\"next_req_chapter_pos\":0,\"xs_strategy_index\":14,\"need_backup_ad\":false,\"remaining_new_user_protect_time\":0,\"tips\":\"即将插入一段广告\",\"tips_optimize\":[\"为了更好的免费阅读体验\",\"下一页将插入广告\"]}"
+}

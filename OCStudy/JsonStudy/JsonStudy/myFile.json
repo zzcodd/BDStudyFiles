@@ -1,0 +1,58 @@
+{
+  "id": 1001,
+  "name": "张彧",
+  "username": "zhangyu",
+  "email": "zhangyu@example.com",
+  "phone": "13800138000",
+  "website": "www.zhangyu.com",
+  "age": 25,
+  "address": {
+    "street": "中关村大街",
+    "suite": "1号楼",
+    "city": "北京",
+    "zipcode": "100080",
+    "geo": {
+      "lat": "39.9042",
+      "lng": "116.4074"
+    }
+  },
+  "hobbies": ["编程", "阅读", "旅行", "摄影"],
+  "company": {
+    "name": "ByteDance",
+    "catchPhrase": "激发创造，丰富生活",
+    "bs": "创新技术产品"
+  },
+  "isActive": true,
+  "joinDate": "2023-01-15",
+  "skills": [
+    {
+      "name": "iOS开发",
+      "level": "高级",
+      "years": 3
+    },
+    {
+      "name": "Objective-C",
+      "level": "中级",
+      "years": 2
+    },
+    {
+      "name": "Swift",
+      "level": "高级",
+      "years": 4
+    }
+  ],
+  "projects": [
+    {
+      "name": "JSON学习项目",
+      "description": "学习Objective-C中的JSON解析",
+      "status": "进行中",
+      "technologies": ["Objective-C", "JSON", "iOS"]
+    },
+    {
+      "name": "文件操作Demo",
+      "description": "iOS文件系统操作示例",
+      "status": "已完成",
+      "technologies": ["Objective-C", "FileManager", "iOS"]
+    }
+  ]
+}
