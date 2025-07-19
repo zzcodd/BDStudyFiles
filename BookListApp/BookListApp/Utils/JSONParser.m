@@ -36,6 +36,7 @@
     for(NSDictionary * dict in bookDataArray){
         if([dict isKindOfClass:[NSDictionary class]]){
             BookModel *book = [BookModel bookWithDictionary:dict];
+//            NSLog(@"%@",book);
             if(book && [book isVaildBook]){
                 [books addObject:book];
             } else {
@@ -72,7 +73,7 @@
 }
 
 #pragma mark - 异步解析
-- (void)parseBookListFromFileAsync:(NSString *)filename completion:(void (^)(NSArray<BookModel *> * books, NSError * error))completion{
++ (void)parseBookListFromFileAsync:(NSString *)filename completion:(void (^)(NSArray<BookModel *> * books, NSError * error))completion{
     if(!completion){
         NSLog(@"回调函数为空");
         return;
@@ -100,7 +101,7 @@
     
 }
 
-- (void)parseAdFromFileAsync:(NSString *)filename completion:(void (^)(AdModel * ad, NSError * error))completion{
++ (void)parseAdFromFileAsync:(NSString *)filename completion:(void (^)(AdModel * ad, NSError * error))completion{
     if(!completion){
         NSLog(@"回调函数为空");
         return;

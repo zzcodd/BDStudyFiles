@@ -28,13 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
 /*
 异步解析书籍列表JSON文件
  */
-- (void)parseBookListFromFileAsync:(NSString *)filename
++ (void)parseBookListFromFileAsync:(NSString *)filename
                          completion:(void(^)(NSArray<BookModel *> * books, NSError * error))completion;
 
 /*
  * 异步解析广告JSON文件
  */
-- (void)parseAdFromFileAsync:(NSString *)filename
++ (void)parseAdFromFileAsync:(NSString *)filename
                   completion:(void(^)(AdModel *ad, NSError * error))completion;
 
 #pragma mark - 工具方法
@@ -47,6 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
  获取完整路径
  */
 + (NSString *)pathForJSONFile:(NSString *)filename;
+
+/*
+ 测试解析信息
+ */
++ (void)printParsingStatistics;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -6,7 +6,7 @@
 //
 
 #import "SceneDelegate.h"
-
+#import "../Views/MainTabBarController.h"
 
 @interface SceneDelegate ()
 
@@ -16,12 +16,18 @@
 
 
 - (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
-//    NSLog(@"ok");
-//    UIWindowScene *windowScene = (UIWindowScene *)scene;
-//    self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
-//    self.window.frame = windowScene.coordinateSpace.bounds;
-//    self.window.rootViewController = ViewController.new;
-//    [self.window makeKeyAndVisible];
+
+    UIWindowScene *windowScene = (UIWindowScene *)scene;
+    // 创建window
+    self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
+    
+    // 设置根视图控制器为TabBarController
+    MainTabBarController *tabBarController = [[MainTabBarController alloc] init];
+    self.window.rootViewController = tabBarController;
+    
+    [self.window makeKeyAndVisible];
+    
+    NSLog(@"App启动成功，主TabBar已设置");
 }
 
 

@@ -21,11 +21,17 @@
     book.bookId = [self safeStringFromDict:dict key:@"book_id"];
     book.bookName = [self safeStringFromDict:dict key:@"book_name"];
     book.thumbUrl = [self safeStringFromDict:dict key:@"thumb_url"];
+    
     book.score = [self safeStringFromDict:dict key:@"score"];
+    book.score = [book formattedScore];
+    
     book.category = [self safeStringFromDict:dict key:@"category_schema"];
     book.subInfo = [self safeStringFromDict:dict key:@"sub_info"];
     book.tags = [self safeStringFromDict:dict key:@"tags"];;
+    
     book.wordNumber = [self safeStringFromDict:dict key:@"word_number"];
+    book.wordNumber = [book formattedWordNumber];
+    
     book.chapterNumber = [self safeStringFromDict:dict key:@"chapter_number"];
     
     if(![book isVaildBook]){
@@ -36,8 +42,8 @@
 
 + (NSString *)safeStringFromDict:(NSDictionary *)dict key:(NSString *)key{
     if(!dict || !key) return @"";
-    id value = dict[@"key"];
-    
+    id value = dict[key];
+
     if([value isKindOfClass:[NSString class]]) return value;
     else if([value isKindOfClass:[NSNumber class]]) return [value stringValue];
     else if([value isKindOfClass:[NSNull class]] || value == nil) return @"";
@@ -125,12 +131,16 @@
                                @"  📚 书名: %@\n"
                                @"  👤 作者: %@\n"
                                @"  ⭐ 评分: %@\n"
+                               @"  📇 摘要: %@\n"
                                @"  📖 分类: %@\n"
                                @"  👥 阅读: %@\n"
                                @"  📝 字数: %@\n"
-                               @"  🔖 ID: %@",
-                               self.bookName, self.author, self.score,
-                               self.category, self.subInfo, [self formattedWordNumber], self.bookId];
+                               @"  📮 章节数: %@\n"
+                               @"  🌟 标签: %@\n"
+                               @"  🔖 ID: %@\n"
+                               @"  🌁 封面图片: %@\n",
+                               self.bookName, self.author, self.score, self.abstract,
+                               self.category, self.subInfo, self.wordNumber, self.chapterNumber, self.tags, self.bookId, self.thumbUrl];
     return newDescription;
 }
 
