@@ -2,71 +2,74 @@
 //  AdPresenter.m
 //  BookListApp
 //
-//  Created by ByteDance on 2025/7/18.
+//  Created by ByteDance on 2025/7/19.
 //
 
 #import "AdPresenter.h"
 #import "../Utils/JSONParser.h"
 
+@interface AdPresenter()
+
+@property(nonatomic, strong) AdModel *currentAd;
+@property(nonatomic, strong) BookModel *currentBook;
+@property(nonatomic, assign) BOOL isLoading;
+
+@end
+
 
 @implementation AdPresenter
 
-- (instancetype)initWithView:(id<AdPresenterViewProtocol>)view{
+#pragma mark - 初始化
+
+- (instancetype)initWithView:(id<AdViewProtocol>)viewDelegate{
     self = [super init];
     if(self){
-        _view = view;
+        _viewDelegate = viewDelegate;
+        _isLoading = NO;
     }
-    return  self;
+    return self;
 }
 
-#pragma mark - AdPresenterProtocol
-- (void)viewDidLoad{
-    NSLog(@"🎬 AdPresenter: 开始加载广告数据");
-
-    // 显示加载状态
-    if([self.view respondsToSelector:@selector(showLoadingState)]){
-        [self.view showLoadingState];
+#pragma mark - AdPresenter Protocol
+- (void)loadAdData{
+    if(self.isLoading){
+        NSLog(@"⚠️ AdPresenter: 正在加载中，忽略重复请求");
+        return;
+    }
+    NSLog(@"📺 AdPresenter: 开始加载广告数据");
+    self.isLoading = YES;
+    
+    // 显示加载
+    if([self.viewDelegate respondsToSelector:@selector(adPresenterShowLoading)]){
+        [self.viewDelegate adPresenterShowLoading];
     }
     
-    // 异步解析广告数据
+    // 加载数据
     [JSONParser parseAdFromFileAsync:@"作业横版视频" completion:^(AdModel *ad, NSError *error){
-        if([self.view respondsToSelector:@selector(hideLoadingState)]){
-            // 隐藏加载状态
-            [self.view hideLoadingState];
-        }
-        if(error || !ad){
-            NSLog(@"❌ AdPresenter: 广告数据加载失败 - %@", error.localizedDescription);
-            [self.view showErrorMessage:@"广告数据加载失败，请重试"];
-        } else {
-            NSLog(@"✅ AdPresenter: 广告数据加载成功 - %@", ad.title);
-            self.adModel = ad;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.isLoading = NO;
             
-            // 通知view显示数据
-            if([self.view respondsToSelector:@selector(displayAdData:)]){
-                [self.view displayAdData:ad];
+            if([self.viewDelegate respondsToSelector:@selector(adPresenterHideLoading)]){
+                [self.viewDelegate  adPresenterHideLoading];
             }
-        }
+            
+            if(error || !ad){
+                NSLog(@"❌ AdPresenter: 广告数据加载失败 - %@", error.localizedDescription);
+            } else {
+                NSLog(@"✅ AdPresenter: 广告数据加载成功 - %@", ad.title);
+                [self  handleLoadSuccess:ad];
+            }
+        });
+        
     }];
 }
+- (void)loadAdDataWithBookInfo:(BookModel *)book{
+    NSLog(@"📺 AdPresenter: 加载广告数据（关联书籍：%@）", book.bookName);
 
-- (void)adButtonTapped{
-    NSLog(@"🔘 AdPresenter: 广告按钮被点击");
-    if(self.adModel && self.adModel.downloadUrl.length > 0){
-        NSLog(@"🌐 准备跳转到URL: %@", self.adModel.downloadUrl);
-        
-        // 实际页面跳转由View处理
-        // Presenter只负责业务逻辑的判断
-    } else {
-        NSLog(@"⚠️ AdPresenter: 无效的下载链接");
-        [self.view showErrorMessage:@"链接无效，无法跳转"];
-    }
+    // 保存书籍信息用于个性化广告
+    self.currentBook = book;
+    [self loadAdData];
 }
 
-- (void) adImageTapped{
-    NSLog(@"🔘 AdPresenter: 广告按钮被点击");
-    
-    // 和按钮逻辑相同
-    [self adButtonTapped];
-}
 
 @end
