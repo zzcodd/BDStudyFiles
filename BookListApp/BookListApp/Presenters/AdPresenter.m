@@ -30,7 +30,26 @@
     return self;
 }
 
-#pragma mark - AdPresenter Protocol
+#pragma mark - AdPresenterProtocol Implementation
+- (void)viewDidLoad{
+    NSLog(@"📺 AdPresenter: viewDidLoad");
+    // 后续可补充一些准备工作，此处无
+}
+
+- (void)viewWillAppear{
+    NSLog(@"📺 AdPresenter: viewWillAppear");
+    if(!self.currentAd){
+        [self loadAdData];
+    }
+}
+
+- (void)viewWillDisappear{
+    NSLog(@"📺 AdPresenter: viewDidDisappear");
+    // 后续可补充一些清理工作
+}
+
+
+#pragma mark - Data Loading
 - (void)loadAdData{
     if(self.isLoading){
         NSLog(@"⚠️ AdPresenter: 正在加载中，忽略重复请求");
@@ -71,5 +90,52 @@
     [self loadAdData];
 }
 
+#pragma mark - User Interactions
+- (void)didTapDownloadButton{
+    NSLog(@"📺 AdPresenter: 用户点击下载按钮");
+        
+    NSString *downloadUrl = self.currentAd.downloadUrl;
+    NSString *webTitle = self.currentAd.webTitle?:@"详情见页面";
+    
+    if(downloadUrl && downloadUrl.length>0){
+        NSLog(@"🚀 AdPresenter: 准备跳转到Web页面 - %@", downloadUrl);
+        
+        // 通知view跳转
+        if([self.viewDelegate respondsToSelector:@selector(adPresenterRequestWebViewWithUrl:title:)]){
+            [self.viewDelegate adPresenterRequestWebViewWithUrl:downloadUrl title:webTitle];
+        } else {
+            NSLog(@"⚠️ AdPresenter: 下载链接无效");
+        }
+    }
+}
 
+- (void)didTapAdImage{
+    NSLog(@"📺 AdPresenter: 用户点击广告图片");
+    [self didTapDownloadButton];
+}
+
+- (void)didTapBackButton{
+    NSLog(@"📺 AdPresenter: 用户点击返回按钮");
+    
+    // 通常返回按钮的处理由View层的导航控制器处理
+    // 这里可以做一些数据清理或统计上报
+}
+#pragma mark - Private Methods
+- (void)handleLoadSuccess:(AdModel *)ad{
+    self.currentAd = ad;
+    
+    if([self.viewDelegate respondsToSelector:@selector(adPresenterDidLoadAd:)]){
+        [self.viewDelegate adPresenterDidLoadAd:_currentAd];
+    }
+}
+- (void)handleLoadError:(NSError *)error {}
+- (void)handleInvalidUrl {}
+
+#pragma mark - Memory Management
+- (void)dealloc{
+    NSLog(@"📺 AdPresenter dealloc");
+    self.viewDelegate = nil;
+    self.currentAd = nil;
+    self.currentBook = nil;
+}
 @end
