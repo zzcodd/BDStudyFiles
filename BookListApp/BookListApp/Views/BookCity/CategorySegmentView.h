@@ -10,9 +10,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class CategorySegmentView;
+
 // 代理协议 ：需要对分类选择进行回调
 @protocol CategorySegmentViewDelegate <NSObject>
+
 - (void)categorySegmentView:(CategorySegmentView *)segmentView didSelectIndex:(NSInteger)index;
+
 @end
 
 

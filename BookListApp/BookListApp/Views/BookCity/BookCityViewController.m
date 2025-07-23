@@ -12,36 +12,28 @@
 #import "../../Utils/JSONParser.h"
 #import "CategorySegmentView.h"
 #import "CategoryPageViewController.h"
+#import "../../Presenters/BookCityPresenter.h"
 
 // 注册复用标签
 static NSString *const kCellIdentifier = @"BookCollectionViewCell";
 
 // 需要用到 UICollectionView 和 UISearchView
-@interface BookCityViewController ()<UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UISearchBarDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate, CategorySegmentViewDelegate, CategoryPageViewControllerDelegate>
+@interface BookCityViewController ()<BookCityViewProtocol, UISearchBarDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate, CategorySegmentViewDelegate, CategoryPageViewControllerDelegate>
+
+
+// 🆕 MVP架构：Presenter
+@property (nonatomic, strong) BookCityPresenter *presenter;
 
 // UI组件
-@property(nonatomic, strong) UICollectionView *collectionView;
-@property(nonatomic, strong) UISearchBar *searchBar;
-@property(nonatomic, strong) UIScrollView *categoryScrollView;
-@property(nonatomic, strong) UIActivityIndicatorView *loadingIndicator;
-
-// 数据
-@property(nonatomic, strong) NSArray<BookModel *> *booksArray;
-@property(nonatomic, strong) NSArray<NSString *> *categories;
-// 管理顶部分类栏的按钮状态和交互逻辑
-@property(nonatomic, strong) NSMutableArray<UIButton *> *categoryButtons;
-@property(nonatomic, assign) NSInteger selectedCategoryIndex;
+@property (nonatomic, strong) UISearchBar *searchBar;
+@property (nonatomic, strong) UIActivityIndicatorView *loadingIndicator;
+@property (nonatomic, strong) UIPageViewController *pageViewController;
+@property (nonatomic, strong) NSMutableArray<CategoryPageViewController *> *categorypages;
+@property (nonatomic, strong) CategorySegmentView *categorySegmentView;
 
 // 布局参数
-@property(nonatomic, assign) CGFloat searchBarHeight;
-@property(nonatomic, assign) CGFloat categoryBarHeight;
+@property (nonatomic, assign) CGFloat searchBarHeight;
 
-// PageViewController
-@property(nonatomic, strong) UIPageViewController *pageViewController;
-@property(nonatomic, strong) NSMutableArray<CategoryPageViewController *> *categorypages;
-
-// 分类选择器
-@property (nonatomic, strong) CategorySegmentView *categorySegmentView;
 
 @end
 
@@ -51,9 +43,13 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [self setupPresenter];
     [self setupConstants];
     [self setupUI];
-    [self loadBookData];
+    [self setupConstraints];
+    
+    // 通知Presenter
+    [self.presenter viewDidLoad];
     
 }
 
@@ -62,6 +58,7 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
     
     // 隐藏导航栏，用搜索栏
     self.navigationController.navigationBar.hidden = YES;
+    [self.presenter viewWillAppear];
 }
 
 - (void)viewWillDisappear:(BOOL)animated{
@@ -71,20 +68,20 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
     // 恢复导航栏
     self.navigationController.navigationBar.hidden = NO;
     
+    [self.presenter viewWillDisappear];
+    
 }
 
 #pragma mark - Setup Constants
+- (void)setupPresenter{
+    self.presenter = [[BookCityPresenter alloc] initWithView:self];
+}
+
 - (void)setupConstants{
     self.searchBarHeight = 44;
-    self.categoryBarHeight = 50;
-    self.selectedCategoryIndex = 1; // 默认选中第二个 "小说"
-    
-    self.categories = @[@"推荐", @"小说", @"经典", @"知识", @"听书", @"看剧", @"视频", @"动漫", @"短篇", @"漫画", @"新书", @"买书"];
     self.categorypages = [NSMutableArray array];
 }
 
-
-#pragma mark - Setup UI
 - (void)setupUI{
     self.view.backgroundColor = [UIColor systemBackgroundColor];
     
@@ -95,17 +92,18 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
     [self setupCategorySegmentView];
     
     [self setupLoadingIndicator];
-    [self setupConstraints];
 }
 
+
 - (void)setupCategorySegmentView{
-    self.categorySegmentView = [[CategorySegmentView alloc] initWithCategories:self.categories];
+    // 从Presenter获取分类数据
+    NSArray<NSString *> *categories = [self.presenter getCategories];
+    self.categorySegmentView = [[CategorySegmentView alloc] initWithCategories:categories];
     self.categorySegmentView.delegate = self;
-    self.categorySegmentView.selectedIndex = self.selectedCategoryIndex;
+    self.categorySegmentView.selectedIndex = [self.presenter getCurrentCategoryIndex];
     self.categorySegmentView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.categorySegmentView];
 }
-
 
 - (void)setupSearchBar{
     self.searchBar  = [[UISearchBar alloc] init];
@@ -216,16 +214,6 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
         [self.searchBar.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-16],
         [self.searchBar.heightAnchor constraintEqualToConstant:self.searchBarHeight],
         
-//        [self.categoryScrollView.topAnchor constraintEqualToAnchor:self.searchBar.bottomAnchor constant:8],
-//        [self.categoryScrollView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-//        [self.categoryScrollView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-//        [self.categoryScrollView.heightAnchor constraintEqualToConstant:self.categoryBarHeight],
-//        
-//        [self.collectionView.topAnchor constraintEqualToAnchor:self.categoryScrollView.bottomAnchor constant:0],
-//        [self.collectionView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-//        [self.collectionView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-//        [self.collectionView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-  
         // CategorySegmentView约束
         [self.categorySegmentView.topAnchor constraintEqualToAnchor:self.searchBar.bottomAnchor constant:8],
         [self.categorySegmentView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
@@ -237,56 +225,18 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
     ]];
 }
 
-#pragma mark - Data Loading
-- (void)loadBookData{
-    NSLog(@"开始加载书籍数据......");
-    [self showLoadingState];
-    
-    // 异步解析数据
-    [JSONParser parseBookListFromFileAsync:@"book_list" completion:^(NSArray<BookModel *> *books, NSError *error){
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self stopLoadingState];
-            if(error || books.count == 0){
-                NSLog(@"❌ 书籍数据加载失败: %@", error.localizedDescription);
-            } else {
-                NSLog(@"✅ 成功加载 %lu 本书籍", (unsigned long)books.count);
-                self.booksArray = books;
-                
-//                [self.collectionView reloadData];
-//                [self animateCollectionViewAppearance];
-                [self setupPageViewController];
-            }
-        });
-    }];
-}
 
-- (void)showLoadingState{
-    // 🔧 修正：隐藏pageViewController而不是collectionView
-    if (self.pageViewController) {
-        self.pageViewController.view.hidden = YES;
-    }
-    [self.loadingIndicator startAnimating];
-}
-
-- (void)stopLoadingState{
-    [self.loadingIndicator stopAnimating];
-    // 🔧 修正：显示pageViewController
-    if (self.pageViewController) {
-        self.pageViewController.view.hidden = NO;
-    }
-}
-
+#pragma mark - Page View Controller Setup
 - (void)setupPageViewController{
     self.pageViewController = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:nil];
-    
-    self.pageViewController.dataSource = self;
+
     self.pageViewController.delegate = self;
+    self.pageViewController.dataSource = self;
     
     // 添加为子控制器
     [self addChildViewController:self.pageViewController];
     [self.view addSubview:self.pageViewController.view];
-    [self.pageViewController didMoveToParentViewController:self];  // 🔧 修正：添加这行
-
+    [self.pageViewController didMoveToParentViewController:self];
     
     // 设置PageViewController的约束
     self.pageViewController.view.translatesAutoresizingMaskIntoConstraints = NO;
@@ -297,71 +247,105 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
         [self.pageViewController.view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
     ]];
     
-    // 创建所有分类页面
+    // 创建所有分类的界面
     [self createCategoryPages];
+    
     // 初始界面
     [self setupInitialPage];
 }
 
+
 - (void)createCategoryPages{
     [self.categorypages removeAllObjects];
     
-    for(NSInteger i=0; i<self.categories.count; i++){
+    NSArray<NSString *> *categories = [self.presenter getCategories];
+    for(NSInteger i=0; i<categories.count; i++){
         CategoryPageViewController *pageVC = [[CategoryPageViewController alloc] init];
         pageVC.categoryIndex = i;
-        pageVC.categoryName = self.categories[i];
+        pageVC.categoryName = categories[i];
         pageVC.delegate = self;
         
-        pageVC.booksArray = [self getBooksForCategoryIndex:i];
+        // 从Presenter获取数据
+        pageVC.booksArray = [self.presenter getBooksForCategoryIndex:i];
         
         [self.categorypages addObject:pageVC];
     }
 }
 
-- (NSArray<BookModel *> *)getBooksForCategoryIndex:(NSInteger)index {
-    NSString *categoryName = self.categories[index];
-    if([categoryName isEqualToString:@"小说"]){
-        return self.booksArray;
-    } else {
-        return @[];
-    }
-}
-
 - (void)setupInitialPage{
     if(self.categorypages.count > 0){
-        CategoryPageViewController *initialPage = self.categorypages[self.selectedCategoryIndex];
+        NSInteger initialIndex = [self.presenter getCurrentCategoryIndex];
+        CategoryPageViewController *initialPage = self.categorypages[initialIndex];
         [self.pageViewController setViewControllers:@[initialPage] direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
     }
 }
 
-#pragma mark - CategorySegmentViewDelegate
-- (void)categorySegmentView:(CategorySegmentView *)segmentView didSelectIndex:(NSInteger)index{
-    if(index == self.selectedCategoryIndex) return;
+
+#pragma mark - BookCityViewProtocol Implementation
+// 数据更新回调
+- (void)bookCityPresenterDidLoadBooks:(NSArray<BookModel *> *)books{
+    NSLog(@"✅ BookCityViewController: 收到书籍数据 - %lu 本书籍", (unsigned long)books.count);
+    // 如果是第一次加载，需要设置PageViewController
+    if(!self.pageViewController){
+        [self setupPageViewController];
+    } else {
+        [self updateCurrentCategoryPageWithBooks:books];
+    }
     
-    NSLog(@"📂 分类选择器点击: %@", self.categories[index]);
-    [self switchToCategoryIndex:index animated:YES];
+}
+- (void)bookCityPresenterDidFailWithError:(NSError *)error{
+    NSLog(@"❌ BookCityViewController: 数据加载失败 - %@", error.localizedDescription);
+    [self showErrorAlert:error.localizedDescription];
 }
 
-- (void)switchToCategoryIndex:(NSInteger)index animated:(BOOL)animated {
-    if (index < 0 || index >= self.categorypages.count) return;
-    NSInteger oldIndex = self.selectedCategoryIndex;
-    self.selectedCategoryIndex = index;
-    
-    // 更新分类选择器
-    [self.categorySegmentView setSelectedIndex:index animated:animated];
-    
-    // 切换页面
-    CategoryPageViewController *targetpage = self.categorypages[index];
-    UIPageViewControllerNavigationDirection direction =
-            (index > oldIndex) ? UIPageViewControllerNavigationDirectionForward : UIPageViewControllerNavigationDirectionReverse;
-        
-    [self.pageViewController setViewControllers:@[targetpage]
-                                      direction:direction
-                                       animated:animated
-                                     completion:^(BOOL finished) {
-        NSLog(@"📱 页面切换完成");
-    }];
+// UI状态回调
+- (void)bookCityPresenterShowLoading{
+    NSLog(@"🔄 BookCityViewController: 显示加载状态");
+    if(self.pageViewController){
+        self.pageViewController.view.hidden = YES;
+    }
+    [self.loadingIndicator startAnimating];
+}
 
+- (void)bookCityPresenterHideLoading{
+    NSLog(@"⏹️ BookCityViewController: 隐藏加载状态");
+    
+    [self.loadingIndicator stopAnimating];
+    if (self.pageViewController) {
+        self.pageViewController.view.hidden = NO;
+    }
+}
+
+// 分类相关的回调
+- (void)bookCityPresenterDidUpdateCategories:(NSArray<NSString *> *)categories{
+    NSLog(@"📂 BookCityViewController: 收到分类数据更新 - %lu 个分类", (unsigned long)categories.count);
+    
+    // 更新CategorySegmentView
+    // 注意：这里可能需要重新创建CategorySegmentView，或者给它添加更新方法
+}
+
+- (void)bookCityPresenterDidSwitchToCategory:(NSInteger)categoryIndex animated:(BOOL)animated{
+    NSLog(@"📱 BookCityViewController: 切换到分类 %ld", (long)categoryIndex);
+    
+    [self switchToCategoryIndex:categoryIndex animated:animated];
+}
+
+// 页面跳转的回调
+- (void)bookCityPresenterRequestAdViewWithBook:(BookModel *)book{
+    NSLog(@"🚀 BookCityViewController: 准备跳转广告页面 - %@", book.bookName);
+
+    AdViewController *adVC = [[AdViewController alloc] init];
+    [adVC loadAdWithBookInfo:book];
+    [self.navigationController pushViewController:adVC animated:YES];
+}
+
+
+
+#pragma mark - CategorySegmentViewDelegate
+- (void)categorySegmentView:(CategorySegmentView *)segmentView didSelectIndex:(NSInteger)index{
+    NSLog(@"📂 分类选择器点击: 索引 %ld", (long)index);
+    // 通过Presenter选择
+    [self.presenter didSelectCategotuAtIndex:index];
 }
 
 #pragma mark - UIPageViewControllerDataSource
@@ -401,93 +385,36 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
         CategoryPageViewController *currentPage = (CategoryPageViewController *)pageViewController.viewControllers.firstObject;
         NSInteger newIndex = currentPage.categoryIndex;
         
-        NSLog(@"📱 滑动切换到分类: %@", self.categories[newIndex]);
+        NSLog(@"📱 滑动切换到分类索引: %ld", (long)newIndex);
         
-        // 更新选中状态（不触发动画，避免循环）
-        self.selectedCategoryIndex = newIndex;
+        // 🔧 修改：通过Presenter处理滑动切换
+        [self.presenter didSwipeToCategoty:newIndex];
+        
+        // 更新分类选择器状态
         [self.categorySegmentView setSelectedIndex:newIndex animated:YES];
     }
 }
 
 #pragma mark - CategoryPageViewControllerDelegate
 - (void)categoryPageViewController:(CategoryPageViewController *)pageViewController didSelectBook:(BookModel *)book atIndex:(NSInteger)index {
-    NSLog(@"用户点击了书籍 %@", book.bookName);
+    NSLog(@"📖 用户点击了书籍: %@ (索引: %ld)", book.bookName, (long)index);
     
-    // 跳转到广告页面
-    AdViewController *adVC = [[AdViewController alloc] init];
-    [self.navigationController pushViewController:adVC animated:YES];
+    // 🔧 修改：通过Presenter处理书籍选择
+    [self.presenter didSelectBook:book atIndex:index fromCategory:pageViewController.categoryIndex];
 }
 
-#pragma mark - Animations
 
-- (void)animateCollectionViewAppearance {
-    self.collectionView.alpha = 0;
-    self.collectionView.transform = CGAffineTransformMakeTranslation(0, 30);
     
-    [UIView animateWithDuration:0.6
-                          delay:0.1
-         usingSpringWithDamping:0.8
-          initialSpringVelocity:0
-                        options:UIViewAnimationOptionCurveEaseOut
-                     animations:^{
-        self.collectionView.alpha = 1;
-        self.collectionView.transform = CGAffineTransformIdentity;
-    } completion:nil];
-}
-
-- (void)animateCellSelection:(UIView *)cell completion:(void(^)(void))completion {
-    [UIView animateWithDuration:0.1 animations:^{
-        cell.transform = CGAffineTransformMakeScale(0.95, 0.95);
-    } completion:^(BOOL finished) {
-        [UIView animateWithDuration:0.1 animations:^{
-            cell.transform = CGAffineTransformIdentity;
-        } completion:^(BOOL finished) {
-            if (completion) {
-                completion();
-            }
-        }];
-    }];
-}
-
-#pragma mark - 按钮事件
-// 点击按钮事件
-- (void)categortButtonTapped:(UIButton *)sender{
-    NSInteger newIndex = sender.tag;
-    
-    // 同一类
-    if(newIndex == self.selectedCategoryIndex) return;
-    
-    NSLog(@"📂 切换分类: %@ → %@", self.categories[self.selectedCategoryIndex], self.categories[newIndex]);
-
-//cc
-    self.selectedCategoryIndex = newIndex;
-    
-    [self animateCategorySwitch];
-    
-    // 后续可根据不同分类加载不同数据
-//    [self loadDataForCategory:newIndex];
-    
-}
-
-- (void)animateCategorySwitch {
-    // 添加分类切换的视觉反馈
-    [UIView animateWithDuration:0.3 animations:^{
-        self.collectionView.alpha = 0.7;
-    } completion:^(BOOL finished) {
-        [UIView animateWithDuration:0.3 animations:^{
-            self.collectionView.alpha = 1.0;
-        }];
-    }];
-}
-
 #pragma mark - UISearchBarDelegate
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar{
     NSLog(@"开始搜索编辑");
+    searchBar.placeholder = @"请输入您想搜索的内容";
     [searchBar setShowsCancelButton:YES animated:YES];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar{
     NSLog(@"结束搜索编辑");
+    searchBar.placeholder = @"实时推荐的兴趣词条";
     [searchBar setShowsCancelButton:NO animated:YES];
 }
 
@@ -504,70 +431,87 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
     // 真正的搜索逻辑
 }
 
-#pragma mark - UICollectionViewDataSource
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
-    return self.booksArray.count;
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    BookCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    
-    if (indexPath.item < self.booksArray.count) {
-        BookModel *book = self.booksArray[indexPath.item];
-        [cell configureWithBook:book];
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    // 🆕 实时搜索
+    if (searchText.length == 0) {
+        [self.presenter clearSearch];
+    } else if (searchText.length >= 2) { // 至少2个字符才开始搜索
+        [self.presenter searchBooksWithKeyword:searchText];
     }
-    
-    return cell;
 }
 
-#pragma mark - UICollectionViewDelegateFlowLayout
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    
-    // 计算Cell大小（2列布局）
-    CGFloat sectionInsets = 16 + 16; // 左右边距
-    CGFloat itemSpacing = 12; // 中间间距
-    CGFloat availableWidth = collectionView.frame.size.width - sectionInsets - itemSpacing;
-    CGFloat cellWidth = availableWidth / 2.0;
-    
-    // 根据设计图比例计算高度
-    CGFloat imageHeight = cellWidth * 1.3; // 图片高度
-    CGFloat textHeight = 60; // 文字区域高度
-    CGFloat cellHeight = imageHeight + textHeight;
-    
-    return CGSizeMake(cellWidth, cellHeight);
-}
+#pragma mark - Private Helper Methods
 
-#pragma mark - UICollectionViewDelegate
-
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
+- (void)switchToCategoryIndex:(NSInteger)index animated:(BOOL)animated {
+    if (index < 0 || index >= self.categorypages.count) return;
     
-    if (indexPath.item >= self.booksArray.count) {
-        return;
-    }
+    NSInteger currentIndex = [self.presenter getCurrentCategoryIndex];
     
-    BookModel *selectedBook = self.booksArray[indexPath.item];
-    NSLog(@"📖 用户点击了书籍: %@ (索引: %ld)", selectedBook.bookName, (long)indexPath.item);
+    // 更新分类选择器
+    [self.categorySegmentView setSelectedIndex:index animated:animated];
     
-    // 添加点击反馈动画
-    BookCollectionViewCell *cell = (BookCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-    [self animateCellSelection:cell completion:^{
-        [self pushToAdViewController];
+    // 切换页面
+    CategoryPageViewController *targetPage = self.categorypages[index];
+    
+    UIPageViewControllerNavigationDirection direction =
+        (index > currentIndex) ? UIPageViewControllerNavigationDirectionForward : UIPageViewControllerNavigationDirectionReverse;
+    
+    [self.pageViewController setViewControllers:@[targetPage]
+                                      direction:direction
+                                       animated:animated
+                                     completion:^(BOOL finished) {
+        NSLog(@"📱 页面切换完成到索引: %ld", (long)index);
     }];
 }
 
+- (void)updateCurrentCategoryPageWithBooks:(NSArray<BookModel *> *)books {
+    NSInteger currentIndex = [self.presenter getCurrentCategoryIndex];
+    if (currentIndex >= 0 && currentIndex < self.categorypages.count) {
+        CategoryPageViewController *currentPage = self.categorypages[currentIndex];
+        currentPage.booksArray = books;
+        
+        NSLog(@"📱 更新分类页面数据: %ld 本书籍", (long)books.count);
+    }
+}
 
+- (void)updateAllCategoryPagesData {
+    // 更新所有分类页面的数据
+    for (NSInteger i = 0; i < self.categorypages.count; i++) {
+        CategoryPageViewController *pageVC = self.categorypages[i];
+        NSArray<BookModel *> *categoryBooks = [self.presenter getBooksForCategoryIndex:i];
+        pageVC.booksArray = categoryBooks;
+    }
+}
 
-
-#pragma mark - Navigation
-- (void)pushToAdViewController{
-    NSLog(@"跳转到广告页面...");
+- (void)navigateToAdViewWithBook:(BookModel *)book {
     AdViewController *adVC = [[AdViewController alloc] init];
+    [adVC loadAdWithBookInfo:book];  // 传递书籍信息到广告页面
     [self.navigationController pushViewController:adVC animated:YES];
 }
 
-- (void)dealloc{
-    NSLog(@"BookCityViewController dealloc");
+- (void)showErrorAlert:(NSString *)message {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"加载失败"
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *retryAction = [UIAlertAction actionWithTitle:@"重试"
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^(UIAlertAction * _Nonnull action) {
+        [self.presenter refreshBookData];
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消"
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:nil];
+    
+    [alert addAction:retryAction];
+    [alert addAction:cancelAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
+- (void)dealloc{
+    NSLog(@"📚 BookCityViewController dealloc");
+//    self.presenter = nil;
+}
 @end

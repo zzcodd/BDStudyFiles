@@ -63,6 +63,7 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
 - (void)showEmptyState{
     UILabel *emptyLabel = [[UILabel alloc] init];
     emptyLabel.text = [NSString stringWithFormat:@"%@📚分类\n\n功能正在开发中", self.categoryName];
+    emptyLabel.numberOfLines = 3;
     emptyLabel.textColor = [UIColor secondaryLabelColor];
     emptyLabel.textAlignment = NSTextAlignmentCenter;
     emptyLabel.font = [UIFont systemFontOfSize:16];
@@ -107,7 +108,7 @@ static NSString *const kCellIdentifier = @"BookCollectionViewCell";
     return self.booksArray.count;
 }
 
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView     cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     
     BookCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     if(indexPath.item < self.booksArray.count){

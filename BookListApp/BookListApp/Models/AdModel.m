@@ -15,7 +15,24 @@
         NSLog(@"adModel : 传入的字典类型为空或者类型错误");
         return nil;
     }
+    
     AdModel *ad = [[AdModel alloc] init];
+    
+    ad.title = [self safeStringFromDict:dict key:@"title"];
+    ad.subTitle = [self safeStringFromDict:dict key:@"sub_title"];
+    ad.adDescription = [self safeStringFromDict:dict key:@"description"];
+    ad.downloadUrl = [self safeStringFromDict:dict key:@"download_url"];
+    // 图片 URL 映射（从 image_list 数组的第一个元素取 url）
+    NSArray *imageList = [dict objectForKey:@"image_list"];
+    if (imageList && imageList.count > 0 && [imageList[0] isKindOfClass:[NSDictionary class]]) {
+        ad.imageUrl = [self safeStringFromDict:imageList[0] key:@"url"];
+    }
+    ad.webTitle = [self safeStringFromDict:dict key:@"web_title"];
+    ad.appInstall = [self safeStringFromDict:dict key:@"app_install"];
+    ad.appLike = [self safeStringFromDict:dict key:@"app_like"];
+    ad.appId = [self safeStringFromDict:dict key:@"appleid"];
+    ad.buttonText = [self safeStringFromDict:dict key:@"button_text"];
+    ad.packageName = [self safeStringFromDict:dict key:@"package"];
     
     return ad;
 }
@@ -72,25 +89,33 @@
 }
 
 #pragma mark - 重写NSobject方法
-- (NSString *)description{
-    return [NSString stringWithFormat:@"<%@: %p>\n%@",
-            NSStringFromClass([self class]), self, [self description]];
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<%@: %p> {\n"
+                                     "  Title Info:       %@\n"
+                                     "  Subtitle:         %@\n"
+                                     "  Description:      %@\n"
+                                     "  Image URL:        %@\n"
+                                     "  Download URL:     %@\n"
+                                     "  Web Title:        %@\n"
+                                     "  App Stats:        Installs=%@, Rating=%@\n"
+                                     "  App Identifiers:  ID=%@, Package=%@\n"
+                                     "  CTA Button:       %@\n"
+                                     "}",
+                                     NSStringFromClass([self class]),
+                                     self,
+                                     self.title,
+                                     self.subTitle,
+                                     self.adDescription,
+                                     self.imageUrl,
+                                     self.downloadUrl,
+                                     self.webTitle,
+                                     self.appInstall,
+                                     self.appLike,
+                                     self.appId,
+                                     self.packageName,
+                                     self.buttonText];
 }
 
-//- (id)copyWithZone:(NSZone *)zone {
-//    AdModel *copy = [[AdModel alloc] init];
-//    copy.title = [self.title copy];
-//    copy.subTitle = [self.subTitle copy];
-//    copy.adDescription = [self.adDescription copy];
-//    copy.buttonText = [self.buttonText copy];
-//    copy.downloadUrl = [self.downloadUrl copy];
-//    copy.imageUrl = [self.imageUrl copy];
-//    copy.webTitle = [self.webTitle copy];
-//    copy.appInstall = [self.appInstall copy];
-//    copy.appLike = [self.appLike copy];
-//    copy.appId = [self.appId copy];
-//    copy.packageName = [self.packageName copy];
-//    return copy;
-//}
+
 
 @end

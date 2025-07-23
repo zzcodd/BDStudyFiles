@@ -24,6 +24,8 @@
         _selectedIndex = 0;
         _buttons = [NSMutableArray array];
         [self setupUI];
+        // 不推荐：此时视图大小还不确定，容易造成混乱
+//        [self createButtons];
     }
     return self;
 }
@@ -124,11 +126,17 @@
     }
 }
 
+// 选中的按钮自动滚动到 ScrollView 的可视区域中央
 - (void)scrollToSelectedButton {
     if (self.selectedIndex >= 0 && self.selectedIndex < self.buttons.count) {
         UIButton *selectedButton = self.buttons[self.selectedIndex];
+        
+        // 按钮在 父视图scrollView 中的 frame（位置和尺寸）
         CGRect buttonFrame = selectedButton.frame;
+        // 按钮中心x坐标   buttonFrame.origin.x 是按钮左上角在 scrollView 中的 X 坐标；
         CGFloat centerX = buttonFrame.origin.x + buttonFrame.size.width / 2;
+        
+        // 计算滚动视图需要滚动到的目标 X 坐标
         CGFloat scrollViewWidth = self.scrollView.bounds.size.width;
         CGFloat targetX = centerX - scrollViewWidth / 2;
         

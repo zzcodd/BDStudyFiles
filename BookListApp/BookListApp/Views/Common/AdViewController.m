@@ -267,6 +267,7 @@
     [self.downloadButton setTitle:ad.buttonText?:@"立即查看" forState:UIControlStateNormal];
     
     // 加载图片
+    NSLog(@"ADviewController - 加载图片 %@", ad.imageUrl);
     if(ad.imageUrl && ad.imageUrl.length > 0){
         [self.adImageView sd_setImageWithURL:[NSURL URLWithString:ad.imageUrl]
                                     placeholderImage:[UIImage systemImageNamed:@"photo"]
@@ -296,7 +297,7 @@
         return;;
     }
     WebViewController *webVC = [[WebViewController alloc] init];
-    webVC.uurlString = url;
+    webVC.urlString = url;
     webVC.webTitle = title;
     [self.navigationController pushViewController:webVC animated:YES];
 }

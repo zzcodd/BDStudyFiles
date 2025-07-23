@@ -59,14 +59,18 @@
         NSLog(@"JSON格式错误，缺少ad_item数组或者字段为空");
         return nil;
     }
+//    NSLog(@"%@ ", adItems);
+    
     
     NSDictionary *adDict = adItems[0];
+    
     AdModel *ad = [AdModel adWithDictionary:adDict];
     
     if(ad && [ad isVaildAD]){
         NSLog(@"解析广告成功 : %@", ad.title);
     } else {
         NSLog(@"广告数据无效");
+        NSLog(@"ad: %@",ad);
         return nil;
     }
     return ad;
@@ -121,7 +125,7 @@
                 NSError *error = [NSError errorWithDomain:@"JSONParserError" code:1002 userInfo:@{
                     NSLocalizedDescriptionKey:@"解析广告数据失败"
                 }];
-                completion(ad, error);
+                completion(nil, error);
             }
         });
     });

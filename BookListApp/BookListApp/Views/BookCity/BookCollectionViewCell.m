@@ -8,6 +8,8 @@
 #import "BookCollectionViewCell.h"
 #import <SDWebImage/SDWebImage.h>
 
+
+
 @implementation BookCollectionViewCell
 
 - (instancetype)initWithFrame:(CGRect)frame{
